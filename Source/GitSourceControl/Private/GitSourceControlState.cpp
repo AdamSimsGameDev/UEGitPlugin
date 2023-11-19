@@ -47,20 +47,6 @@ TSharedPtr<class ISourceControlRevision, ESPMode::ThreadSafe> FGitSourceControlS
 	return nullptr;
 }
 
-TSharedPtr<class ISourceControlRevision, ESPMode::ThreadSafe> FGitSourceControlState::GetBaseRevForMerge() const
-{
-	for (const auto& Revision : History)
-	{
-		// look for the the SHA1 id of the file, not the commit id (revision)
-		if (Revision->FileHash == PendingMergeBaseFileHash)
-		{
-			return Revision;
-		}
-	}
-
-	return nullptr;
-}
-
 #if ENGINE_MAJOR_VERSION == 5
 
 FSlateIcon FGitSourceControlState::GetIcon() const
