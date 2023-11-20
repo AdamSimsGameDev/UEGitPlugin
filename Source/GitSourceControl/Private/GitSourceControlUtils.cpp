@@ -1098,10 +1098,10 @@ bool RunUpdateStatus(const FString& InPathToGitBinary, const FString& InReposito
 			Results.Reset();
 			ErrorMessages.Reset();
 			TArray<FString> ParametersLog;
-			ParametersLog.Add(TEXT("--pretty=")); // this omits the commit lines, just gets us files
+			ParametersLog.Add(TEXT("--stat"));
 			ParametersLog.Add(TEXT("--name-only"));
-			ParametersLog.Add(bDiffAgainstRemote ? TEXT("HEAD..HEAD@{upstream}") : BranchName);
-			const bool bResultDiff = RunCommand(TEXT("log"), InPathToGitBinary, InRepositoryRoot, ParametersLog, OnePath, Results, ErrorMessages);
+			ParametersLog.Add(TEXT("origin/HEAD"));
+			const bool bResultDiff = RunCommand(TEXT("diff"), InPathToGitBinary, InRepositoryRoot, ParametersLog, OnePath, Results, ErrorMessages);
 			OutErrorMessages.Append(ErrorMessages);
 			if (bResultDiff)
 			{
@@ -1112,7 +1112,10 @@ bool RunUpdateStatus(const FString& InPathToGitBinary, const FString& InReposito
 					// Find existing corresponding file state to update it (not found would mean new file or not in the current path)
 					if (FGitSourceControlState* FileStatePtr = OutStates.FindByPredicate([NewerFilePath](FGitSourceControlState& FileState) { return FileState.LocalFilename == NewerFilePath; }))
 					{
-						FileStatePtr->bNewerVersionOnServer = true;
+						if (!FileStatePtr->IsCheckedOutOrModifiedInOtherBranch(BranchName) && !FileStatePtr->IsAdded())
+						{
+							FileStatePtr->bNewerVersionOnServer = true;
+						}
 					}
 				}
 			}

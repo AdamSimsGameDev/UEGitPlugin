@@ -224,17 +224,17 @@ FText FGitSourceControlState::GetDisplayName() const
 
 FText FGitSourceControlState::GetDisplayTooltip() const
 {
-	if (LockState == ELockState::Locked)
+	if (!IsCurrent())
+	{
+		return LOCTEXT("NotCurrent_Tooltip", "The file(s) are not at the head revision");
+	}
+	else if (LockState == ELockState::Locked)
 	{
 		return LOCTEXT("Locked_Tooltip", "Locked for editing by current user");
 	}
 	else if (LockState == ELockState::LockedOther)
 	{
 		return FText::Format(LOCTEXT("LockedOther_Tooltip", "Locked for editing by: {0}"), FText::FromString(LockUser));
-	}
-	else if (!IsCurrent())
-	{
-		return LOCTEXT("NotCurrent_Tooltip", "The file(s) are not at the head revision");
 	}
 
 	switch (WorkingCopyState)
